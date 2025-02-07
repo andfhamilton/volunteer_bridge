@@ -1,22 +1,27 @@
 from django.test import TestCase
-
-# accounts/tests.py
-from django.test import TestCase
 from rest_framework.test import APIClient
 from django.urls import reverse
-from .models import User
+from rest_framework import status
 
-class UserTests(TestCase):
+class AuthenticationTest(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user_data = {
-            'username': 'testuser',
-            'email': 'test@example.com',
-            'password': 'testpass123',
-            'is_volunteer': True
-        }
+        self.register_url = reverse('register')
+        self.token_url = reverse('token_obtain_pair')
         
-    def test_create_user(self):
-        response = self.client.post(reverse('user-list'), self.user_data)
-        self.assertEqual(response.status_code, 201)
+    def test_registration(self):
+        data = {
+            'username': 'testuser',
+            'password': 'testpass123',
+            'email': 'test@example.com',
+            'is_volunteer': True,
+            'is_organization': False
+        }
+        response = self.client.post(self.register_url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        # Verify user type was set correctly
+        self.assertTrue(response.data['is_volunteer'])
+        self.assertFalse(response.data['is_organization'])
+
 
