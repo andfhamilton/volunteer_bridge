@@ -1,25 +1,16 @@
-from django.shortcuts import render
-from rest_framework import viewsets
+# accounts/views.py
+from rest_framework import viewsets, permissions
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, action
+from .models import User
 from .serializers import UserSerializer
 
-@api_view(['GET'])
-def test_view(request):
-    return Response({"message": "Accounts API is working!"})
-
-
-
 class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
     
-    def get_queryset(self):
-        if self.action == 'volunteers':
-            return User.objects.filter(is_volunteer=True)
-        return User.objects.all()
-
-    @action(detail=False, methods=['get'])
-    def volunteers(self, request):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
+    @action(detail=False, methods=['GET'])
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
         return Response(serializer.data)
