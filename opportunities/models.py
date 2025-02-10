@@ -10,7 +10,7 @@ class Opportunity(models.Model):
     
     title = models.CharField(max_length=200)
     description = models.TextField()
-    organization = models.ForeignKey('accounts.User', on_delete=models.CASCADE)
+    organization = models.ForeignKey('accounts.User', on_delete=models.CASCADE, limit_choices_to={'is_organization': True})
     required_skills = models.JSONField()
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
