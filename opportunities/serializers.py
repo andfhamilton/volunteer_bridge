@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.utils.dateparse import parse_datetime
 from .models import Opportunity
+from accounts.serializers import UserSerializer
 
 class OpportunitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,3 +18,7 @@ class OpportunitySerializer(serializers.ModelSerializer):
         if data['start_date'] >= data['end_date']:
             raise serializers.ValidationError("End date must be after start date")
         return data
+
+class MatchResultSerializer(serializers.Serializer):
+    volunteer = UserSerializer()
+    match_score = serializers.IntegerField()

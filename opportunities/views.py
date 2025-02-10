@@ -1,8 +1,10 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from .models import Opportunity
+from rest_framework.decorators import action
 from .serializers import OpportunitySerializer
 from accounts.permissions import IsOrganization
+from .matching import match_volunteers_to_opportunities
 
 class OpportunityViewSet(viewsets.ModelViewSet):
     queryset = Opportunity.objects.all()
@@ -25,3 +27,16 @@ class OpportunityViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=True, methods=['GET'])
+    def matches(self, request, pk=None):
+        """Get matching volunteers for this opportunity"""
+        opportunity = self.get_object()
+        if not request.user.is_organization:
+            return Response(
+                {"detail": "Only organizations can view matches"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        matches = match_volunteers_to_opportunities(opportunity)
+        return Response(matches)

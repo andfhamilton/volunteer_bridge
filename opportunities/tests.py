@@ -135,3 +135,66 @@ class TestOpportunities:
         # Verify it's deleted
         get_response = org_client.get(reverse('opportunity-detail', args=[opp_id]))
         assert get_response.status_code == status.HTTP_404_NOT_FOUND
+
+@pytest.mark.django_db
+class TestMatchingSystem:
+    @pytest.fixture
+    def org_user(self, client):
+        data = {
+            'username': 'orguser',
+            'password': 'testpass123',
+            'email': 'org@test.com',
+            'is_organization': True,
+            'skills': [],
+            'interests': []
+        }
+        response = client.post(reverse('register'), data)
+        return response.json()
+
+    @pytest.fixture
+    def org_client(self, client, org_user):
+        client = APIClient()
+        token = client.post(reverse('token_obtain_pair'), {
+            'username': 'orguser',
+            'password': 'testpass123'
+        }).json()['access']
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        return client
+    
+    @pytest.fixture
+    def opportunity(self, org_client):
+        """Create an opportunity for testing"""
+        data = {
+            'title': 'Test Opportunity',
+            'description': 'Test Description',
+            'required_skills': json.dumps(['python', 'django']),  # Note the json.dumps
+            'start_date': '2025-02-15T10:00:00Z',
+            'end_date': '2025-02-20T18:00:00Z',
+            'location': 'Remote',
+            'max_volunteers': 5,
+            'status': 'OPEN'
+        }
+        response = org_client.post(reverse('opportunity-list'), data)
+        return response.json()
+
+    @pytest.fixture
+    def volunteer(self, client):
+        """Create a volunteer user for testing"""
+        data = {
+            'username': 'volunteer1',
+            'password': 'testpass123',
+            'email': 'volunteer1@test.com',
+            'is_volunteer': True,
+            'skills': [],  # Empty list as per our User model
+            'interests': []  # Empty list as per our User model
+        }
+        response = client.post(reverse('register'), data)
+        return response.json()
+
+    def test_matching_system(self, org_client, opportunity, volunteer):
+        """Test the matching system for an opportunity"""
+        match_url = reverse('opportunity-matches', args=[opportunity['id']])
+        response = org_client.get(match_url)
+        assert response.status_code == status.HTTP_200_OK
+        assert isinstance(response.data, list)  # Response should be a list of matches
+
