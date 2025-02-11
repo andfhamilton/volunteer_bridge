@@ -1,7 +1,7 @@
 # accounts/admin.py
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User
+from .models import User, Message
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'get_user_type', 'date_joined')
@@ -20,3 +20,4 @@ class CustomUserAdmin(UserAdmin):
     get_user_type.short_description = 'User Type'
 
 admin.site.register(User, CustomUserAdmin)
+admin.site.register(Message)

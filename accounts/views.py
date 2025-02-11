@@ -1,10 +1,12 @@
 
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from .serializers import UserSerializer
-from .models import User
+from .serializers import UserSerializer, MessageSerializer
+from rest_framework.decorators import action
+from .models import User, Message
+from django.db.models import Q
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -18,3 +20,24 @@ class RegisterView(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+class MessageViewSet(viewsets.ModelViewSet):
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Message.objects.filter(
+            Q(sender=user) | Q(recipient=user)
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)
+    
+    @action(detail=True, methods=['POST'])
+    def mark_read(self, request, pk=None):
+        message = self.get_object()
+        message.read = True
+        message.save()
+        serializer = self.get_serializer(message)
+        return Response(serializer.data)
