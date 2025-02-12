@@ -1,8 +1,9 @@
 from rest_framework import viewsets, permissions, status
+from django.db.models import Q
 from rest_framework.response import Response
-from .models import Opportunity
+from .models import Opportunity, Event
 from rest_framework.decorators import action
-from .serializers import OpportunitySerializer
+from .serializers import OpportunitySerializer, EventSerializer
 from accounts.permissions import IsOrganization
 from .matching import match_volunteers_to_opportunities
 
@@ -40,3 +41,20 @@ class OpportunityViewSet(viewsets.ModelViewSet):
             
         matches = match_volunteers_to_opportunities(opportunity)
         return Response(matches)
+    
+class EventViewSet(viewsets.ModelViewSet):
+    serializer_class = EventSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Event.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    @action(detail=True, methods=['POST'])
+    def attend(self, request, pk=None):
+        event = self.get_object()
+        event.attendees.add(request.user)
+        return Response({'status': 'registered for event'})
+

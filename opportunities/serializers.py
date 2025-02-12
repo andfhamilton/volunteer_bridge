@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.utils.dateparse import parse_datetime
-from .models import Opportunity
+from .models import Opportunity, Event
 from accounts.serializers import UserSerializer
 
 class OpportunitySerializer(serializers.ModelSerializer):
@@ -22,3 +22,14 @@ class OpportunitySerializer(serializers.ModelSerializer):
 class MatchResultSerializer(serializers.Serializer):
     volunteer = UserSerializer()
     match_score = serializers.IntegerField()
+
+class EventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = '__all__'
+        read_only_fields = ('created_by', 'created_at')
+
+    def validate(self, data):
+        if data['start_time'] >= data['end_time']:
+            raise serializers.ValidationError("End time must be after start time")
+        return data

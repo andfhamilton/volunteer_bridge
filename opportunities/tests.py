@@ -198,3 +198,83 @@ class TestMatchingSystem:
         assert response.status_code == status.HTTP_200_OK
         assert isinstance(response.data, list)  # Response should be a list of matches
 
+# Event tests
+@pytest.mark.django_db
+class TestEventSystem:
+    @pytest.fixture
+    def org_user(self, client):
+        data = {
+            'username': 'orguser',
+            'password': 'testpass123',
+            'email': 'org@test.com',
+            'is_organization': True,
+            'skills': [],
+            'interests': []
+        }
+        response = client.post(reverse('register'), data)
+        return response.json()
+
+    @pytest.fixture
+    def vol_user(self, client):
+        data = {
+            'username': 'voluser',
+            'password': 'testpass123',
+            'email': 'vol@test.com',
+            'is_volunteer': True,
+            'is_organization': False,
+            'skills': [],
+            'interests': []
+        }
+        response = client.post(reverse('register'), data)
+        return response.json()
+
+    @pytest.fixture
+    def org_client(self, client, org_user):
+        client = APIClient()
+        token = client.post(reverse('token_obtain_pair'), {
+            'username': 'orguser',
+            'password': 'testpass123'
+        }).json()['access']
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        return client
+
+    @pytest.fixture
+    def vol_client(self, client, vol_user):
+        client = APIClient()
+        token = client.post(reverse('token_obtain_pair'), {
+            'username': 'voluser',
+            'password': 'testpass123'
+        }).json()['access']
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        return client
+
+    @pytest.fixture
+    def event_data(self):
+        return {
+            'title': 'Test Event',
+            'description': 'This is a test event.',
+            'start_time': '2025-02-15T10:00:00Z',
+            'end_time': '2025-02-15T12:00:00Z',
+            'location': 'Test Location'
+        }
+
+    def test_create_event(self, org_client, event_data):
+        response = org_client.post(reverse('event-list'), event_data)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['title'] == event_data['title']
+
+    def test_list_events(self, org_client, vol_client, event_data):
+        create_response = org_client.post(reverse('event-list'), event_data)
+        assert create_response.status_code == status.HTTP_201_CREATED
+
+        response = vol_client.get(reverse('event-list'))
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) > 0
+
+    def test_attend_event(self, vol_client, org_client, event_data):
+        response = org_client.post(reverse('event-list'), event_data)
+        event_id = response.data['id']
+        attend_url = reverse('event-attend', args=[event_id])
+        response = vol_client.post(attend_url)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['status'] == 'registered for event'

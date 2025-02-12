@@ -4,6 +4,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'opportunities', views.OpportunityViewSet)
+router.register(r'events', views.EventViewSet, basename='event')
 
 urlpatterns = [
     path('', include(router.urls)),
