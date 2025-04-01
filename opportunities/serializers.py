@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.utils.dateparse import parse_datetime
-from .models import Opportunity, Event
+from .models import Opportunity, Event, RSVP
+from django.utils import timezone
 from accounts.serializers import UserSerializer
 
 class OpportunitySerializer(serializers.ModelSerializer):
@@ -24,12 +25,33 @@ class MatchResultSerializer(serializers.Serializer):
     match_score = serializers.IntegerField()
 
 class EventSerializer(serializers.ModelSerializer):
+    available_slots = serializers.SerializerMethodField()
+    attendee_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Event
         fields = '__all__'
         read_only_fields = ('created_by', 'created_at')
+    
+    def get_available_slots(self, obj):
+        return obj.max_attendees - obj.rsvps.filter(status='ATTENDING').count()
+        
+    def get_attendee_count(self, obj):
+        return obj.rsvps.filter(status='ATTENDING').count()
 
     def validate(self, data):
         if data['start_time'] >= data['end_time']:
             raise serializers.ValidationError("End time must be after start time")
+        return data
+
+class RSVPSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RSVP
+        fields = '__all__'
+        read_only_fields = ('user', 'created_at', 'updated_at')
+
+    def validate(self, data):
+        event = data['event']
+        if event.start_time < timezone.now():
+            raise serializers.ValidationError("Cannot RSVP for past events")
         return data

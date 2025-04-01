@@ -4,7 +4,8 @@ from django.urls import reverse
 from rest_framework import status
 from datetime import datetime, timedelta
 from accounts.models import User
-from .models import Opportunity
+from .models import Opportunity, Event, RSVP
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 
@@ -278,3 +279,128 @@ class TestEventSystem:
         response = vol_client.post(attend_url)
         assert response.status_code == status.HTTP_200_OK
         assert response.data['status'] == 'registered for event'
+
+@pytest.mark.django_db
+class TestRSVPSystem:
+    @pytest.fixture
+    def org_user(self, client):
+        data = {
+            'username': 'orguser',
+            'password': 'testpass123',
+            'email': 'org@test.com',
+            'is_organization': True,
+            'skills': [],
+            'interests': []
+        }
+        response = client.post(reverse('register'), data)
+        return response.json()
+
+    @pytest.fixture
+    def org_client(self, client, org_user):
+        client = APIClient()
+        token = client.post(reverse('token_obtain_pair'), {
+            'username': 'orguser',
+            'password': 'testpass123'
+        }).json()['access']
+        client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        return client
+        
+    @pytest.fixture
+    def vol_client(self, client):
+        # Create a volunteer user consistently with the API
+        data = {
+            'username': 'voluser',
+            'password': 'testpass123',
+            'email': 'vol@test.com',
+            'is_volunteer': True,
+            'is_organization': False,
+            'skills': [],
+            'interests': []
+        }
+        response = client.post(reverse('register'), data)
+        
+        # Create authenticated client
+        vol_client = APIClient()
+        token = vol_client.post(reverse('token_obtain_pair'), {
+            'username': 'voluser',
+            'password': 'testpass123'
+        }).json()['access']
+        vol_client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        
+        return vol_client
+
+    @pytest.fixture
+    def vol_client2(self, client):
+        data = {
+            'username': 'voluser2',
+            'password': 'testpass123',
+            'email': 'vol2@test.com',
+            'is_volunteer': True,
+            'is_organization': False,
+            'skills': [],
+            'interests': []
+        }
+        response = client.post(reverse('register'), data)
+        
+        vol_client2 = APIClient()
+        token = vol_client2.post(reverse('token_obtain_pair'), {
+            'username': 'voluser2',
+            'password': 'testpass123'
+        }).json()['access']
+        vol_client2.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        
+        return vol_client2
+
+    @pytest.fixture
+    def vol_client3(self, client):
+        data = {
+            'username': 'voluser3',
+            'password': 'testpass123',
+            'email': 'vol3@test.com',
+            'is_volunteer': True,
+            'is_organization': False,
+            'skills': [],
+            'interests': []
+        }
+        response = client.post(reverse('register'), data)
+        
+        vol_client3 = APIClient()
+        token = vol_client3.post(reverse('token_obtain_pair'), {
+            'username': 'voluser3',
+            'password': 'testpass123'
+        }).json()['access']
+        vol_client3.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+        
+        return vol_client3
+        
+    @pytest.fixture
+    def event(self, org_client):
+        # Complete all required fields for event creation
+        data = {
+            'title': 'Test Event',
+            'description': 'Test Description',
+            'start_time': (timezone.now() + timedelta(days=1)).strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+            'end_time': (timezone.now() + timedelta(days=1, hours=2)).strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
+            'location': 'Test Location',
+            'max_attendees': 2,
+            'waitlist_enabled': True
+        }
+        response = org_client.post(reverse('event-list'), data)
+        return response.json()
+
+    def test_rsvp_success(self, vol_client, event):
+        response = vol_client.post(reverse('event-rsvp', args=[event['id']]))
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['status'] == 'ATTENDING'
+
+    def test_waitlisting(self, vol_client, vol_client2, vol_client3, event):
+        # Create RSVPs for first two users (fills capacity)
+        vol_client.post(reverse('event-rsvp', args=[event['id']]))
+        vol_client2.post(reverse('event-rsvp', args=[event['id']]))
+        
+        # Third user should be waitlisted
+        response = vol_client3.post(reverse('event-rsvp', args=[event['id']]))
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['status'] == 'WAITLISTED'
+
+

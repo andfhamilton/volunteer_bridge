@@ -29,11 +29,29 @@ class Event(models.Model):
     opportunity = models.ForeignKey('Opportunity', on_delete=models.CASCADE, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    attendees = models.ManyToManyField(User, related_name='events_attending', blank=True)
+    max_attendees = models.PositiveIntegerField(default=50)
+    waitlist_enabled = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['start_time']
 
     def __str__(self):
         return self.title
+
+class RSVP(models.Model):
+    RSVP_STATUS = [
+        ('REGISTERED', 'Registered'),
+        ('ATTENDING', 'Attending'),
+        ('WAITLISTED', 'Waitlisted'),
+        ('CANCELLED', 'Cancelled')
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='rsvps')
+    status = models.CharField(max_length=10, choices=RSVP_STATUS, default='REGISTERED')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'event')
 

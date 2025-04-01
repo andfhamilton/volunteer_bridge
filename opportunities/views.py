@@ -1,9 +1,10 @@
 from rest_framework import viewsets, permissions, status
 from django.db.models import Q
 from rest_framework.response import Response
-from .models import Opportunity, Event
+from .models import Opportunity, Event, RSVP
 from rest_framework.decorators import action
-from .serializers import OpportunitySerializer, EventSerializer
+from .serializers import OpportunitySerializer, EventSerializer, RSVPSerializer
+from rest_framework.exceptions import ValidationError
 from accounts.permissions import IsOrganization
 from .matching import match_volunteers_to_opportunities
 
@@ -55,6 +56,51 @@ class EventViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['POST'])
     def attend(self, request, pk=None):
         event = self.get_object()
-        event.attendees.add(request.user)
+        RSVP.objects.create(user=request.user, event=event, status='ATTENDING')
         return Response({'status': 'registered for event'})
+    @action(detail=True, methods=['POST'])
+    def rsvp(self, request, pk=None):
+        event = self.get_object()
+    
+        # Check current attendance count
+        attendee_count = event.rsvps.filter(status='ATTENDING').count()
+        
+        # Determine status based on capacity
+        if attendee_count < event.max_attendees:
+            status_value = 'ATTENDING'
+        elif event.waitlist_enabled:
+            status_value = 'WAITLISTED'
+        else:
+            return Response({'error': 'Event is full and waitlist is disabled'}, 
+                        status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create RSVP with appropriate status
+        rsvp = RSVP.objects.create(
+            user=request.user, 
+            event=event, 
+            status=status_value
+        )
+        
+        serializer = RSVPSerializer(rsvp)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+class RSVPViewSet(viewsets.ModelViewSet):
+    serializer_class = RSVPSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return RSVP.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        event = serializer.validated_data['event']
+        
+        if RSVP.objects.filter(user=self.request.user, event=event).exists():
+            raise ValidationError("You already have an RSVP for this event")
+            
+        if event.rsvps.filter(status='ATTENDING').count() >= event.max_attendees:
+            if event.waitlist_enabled:
+                serializer.save(user=self.request.user, status='WAITLISTED')
+            else:
+                raise ValidationError("Event is full")
+        else:
+            serializer.save(user=self.request.user)
