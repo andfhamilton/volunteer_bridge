@@ -7,6 +7,10 @@ from .serializers import OpportunitySerializer, EventSerializer, RSVPSerializer
 from rest_framework.exceptions import ValidationError
 from accounts.permissions import IsOrganization
 from .matching import match_volunteers_to_opportunities
+from notifications.utils import create_notification
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class OpportunityViewSet(viewsets.ModelViewSet):
     queryset = Opportunity.objects.all()
@@ -20,7 +24,17 @@ class OpportunityViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
     
     def perform_create(self, serializer):
-        serializer.save(organization=self.request.user)
+        opportunity = serializer.save(organization=self.request.user)
+        
+        # Notify all volunteers about the new opportunity
+        volunteers = User.objects.filter(is_volunteer=True)
+        for volunteer in volunteers:
+            create_notification(
+                user=volunteer,
+                notification_type='opportunity',
+                message=f"New opportunity available: {opportunity.title}",
+                related_object_id=opportunity.id
+            )
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -41,6 +55,16 @@ class OpportunityViewSet(viewsets.ModelViewSet):
             )
             
         matches = match_volunteers_to_opportunities(opportunity)
+
+        # Notify matched volunteers if this is the first time they're matched
+        for match in matches:
+            volunteer = match['volunteer']
+            create_notification(
+                user=volunteer,
+                notification_type='opportunity',
+                message=f"You've been matched to {opportunity.title} based on your skills",
+                related_object_id=opportunity.id
+            )
         return Response(matches)
     
 class EventViewSet(viewsets.ModelViewSet):
@@ -52,12 +76,22 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+        # Notify volunteers about new event
+        volunteers = User.objects.filter(is_volunteer=True)
+        for volunteer in volunteers:
+            create_notification(
+                user=volunteer,
+                notification_type='event',
+                message=f"New event scheduled: {event.title}",
+                related_object_id=event.id
+            )
 
     @action(detail=True, methods=['POST'])
     def attend(self, request, pk=None):
         event = self.get_object()
         RSVP.objects.create(user=request.user, event=event, status='ATTENDING')
         return Response({'status': 'registered for event'})
+    
     @action(detail=True, methods=['POST'])
     def rsvp(self, request, pk=None):
         event = self.get_object()
@@ -79,6 +113,22 @@ class EventViewSet(viewsets.ModelViewSet):
             user=request.user, 
             event=event, 
             status=status_value
+        )
+
+        # Create notification for the user
+        create_notification(
+            user=request.user,
+            notification_type='rsvp',
+            message=f"Your RSVP for {event.title} is {status_value}",
+            related_object_id=event.id
+        )
+        
+        # Notify event creator
+        create_notification(
+            user=event.created_by,
+            notification_type='rsvp',
+            message=f"{request.user.username} has RSVP'd to your event: {event.title}",
+            related_object_id=event.id
         )
         
         serializer = RSVPSerializer(rsvp)

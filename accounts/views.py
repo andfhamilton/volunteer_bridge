@@ -7,6 +7,7 @@ from .serializers import UserSerializer, MessageSerializer
 from rest_framework.decorators import action
 from .models import User, Message
 from django.db.models import Q
+from notifications.utils import create_notification
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -32,7 +33,15 @@ class MessageViewSet(viewsets.ModelViewSet):
         )
 
     def perform_create(self, serializer):
-        serializer.save(sender=self.request.user)
+        message = serializer.save(sender=self.request.user)
+        
+        # Notify recipient about new message
+        create_notification(
+            user=message.recipient,
+            notification_type='message',
+            message=f"New message from {self.request.user.username}: {message.subject}",
+            related_object_id=message.id
+        )
     
     @action(detail=True, methods=['POST'])
     def mark_read(self, request, pk=None):

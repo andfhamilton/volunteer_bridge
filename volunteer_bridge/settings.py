@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'accounts',
     'opportunities',
     'volunteer_hours',
+    'notifications',
 ]
 
 MIDDLEWARE = [

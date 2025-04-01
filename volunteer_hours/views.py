@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from .models import VolunteerHour
 from .serializers import VolunteerHourSerializer
 from accounts.permissions import IsOrganization
+from notifications.utils import create_notification
 
 class VolunteerHourViewSet(viewsets.ModelViewSet):
     queryset = VolunteerHour.objects.all()
@@ -33,3 +34,21 @@ class VolunteerHourViewSet(viewsets.ModelViewSet):
         hour.save()
         serializer = self.get_serializer(hour)
         return Response({'status': 'hours verified'})
+    
+    @action(detail=True, methods=['POST'])
+    def verify(self, request, pk=None):
+        hour = self.get_object()
+        hour.verified = True
+        hour.verified_by = request.user
+        hour.save()
+        
+        # Notify volunteer that hours were verified
+        create_notification(
+            user=hour.volunteer,
+            notification_type='hours',
+            message=f"Your volunteer hours for {hour.opportunity.title} have been verified",
+            related_object_id=hour.id
+        )
+        
+        serializer = self.get_serializer(hour)
+        return Response(serializer.data)
