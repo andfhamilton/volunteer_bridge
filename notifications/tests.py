@@ -26,6 +26,7 @@ class NotificationTests(TestCase):
 
     def test_mark_notification_as_read(self):
         notification = create_notification(self.user, 'opportunity', 'Test notification')
-        response = self.client.patch(f'/api/notifications/{notification.id}/', {'is_read': True})
+        response = self.client.post(f'/api/notifications/{notification.id}/mark_read/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(Notification.objects.first().is_read)
+
