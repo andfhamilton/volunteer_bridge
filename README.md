@@ -20,7 +20,7 @@ Django REST Framework\
 PostgreSQL\
 JWT Authentication
 ### Coming Soon
-Frontend: Vue.js + Tailwind CSS\
+Frontend: React + Bootstrap\
 Deployment: Heroku
 
 ## 🚀 Getting Started
