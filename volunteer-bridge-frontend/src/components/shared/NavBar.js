@@ -15,9 +15,20 @@ const AppNavbar = () => {
   };
 
   return (
-    <Navbar bg="light" expand="lg">
+    <Navbar expand="lg">
       <Container>
-        <Navbar.Brand as={Link} to="/">Volunteer Bridge</Navbar.Brand>
+        
+        <Navbar.Brand as={Link} to="/">
+          <img
+            src="https://img.icons8.com/?size=100&id=16161&format=png&color=000000"
+            width="30"
+            height="30"
+            className="d-inline-block align-top me-2"
+            alt="Volunteer Bridge logo"
+          />
+          Volunteer Bridge
+        </Navbar.Brand>
+
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">

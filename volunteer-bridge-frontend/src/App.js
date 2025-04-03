@@ -7,20 +7,23 @@ import { AuthProvider } from './context/AuthContext';
 import AppNavbar from './components/shared/NavBar';
 import Footer from './components/shared/Footer';
 
-// Import Bootstrap CSS
+// Import styles
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
+import './custom-styles.css';  
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+
 
 // Page components
 import Home from './components/Home';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import OpportunityList from './components/opportunities/OpportunityList';
+import OpportunityDetail from './components/opportunities/OpportunityDetail';
+import PrivateRoute from './components/routing/PrivateRoute';
 
-// Import Bootstrap CSS
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
+
 // Placeholder components (we'll create these next)
-const Opportunities = () => <div>Opportunities Page</div>;
 const Events = () => <div>Events Page</div>;
 const Profile = () => <div>Profile Page</div>;
 const NotFound = () => <div>404 - Page Not Found</div>;
@@ -36,9 +39,20 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/opportunities" element={<Opportunities />} />
+              <Route path="/opportunities" element={<OpportunityList />} />
+              <Route path="/opportunities/:id" element={<OpportunityDetail />} />
               <Route path="/events" element={<Events />} />
-              <Route path="/profile" element={<Profile />} />
+              
+              {/* Protected routes */}
+              <Route 
+                path="/profile" 
+                element={
+                  <PrivateRoute>
+                    <Profile />
+                  </PrivateRoute>
+                } 
+              />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Container>

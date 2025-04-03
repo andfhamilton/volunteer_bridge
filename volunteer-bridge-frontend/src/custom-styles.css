@@ -1,0 +1,52 @@
+/* src/custom-styles.css */
+:root {
+  --bs-primary: #8f33cd;
+  --bs-secondary: #e0e37a;
+  --bs-success: #0f9d58;
+  --bs-info: #ad42f4;
+  --bs-warning: #fbbc05;
+  --bs-danger: #ea4335;
+}
+
+.btn-primary {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+  background-color: #c48aeb;
+  border-color: #9a3bdb;
+}
+.btn-secondary {
+  background-color: var(--bs-secondary);
+  border-color: var(--bs-secondary);
+}
+ .btn-outline-primary {
+  color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+  background-color: var(--bs-primary);
+  color: #fff;
+}
+
+a {
+  color: var(--bs-primary);
+}
+a:hover, a:focus {
+  color: #c48aeb;
+}
+a:active {
+  color: #9a3bdb;
+}
+/* NavBar and Footer background color */
+.navbar, .footer {
+  background-color: #e8f0ed; 
+}
+
+/* Volunteer Bridge text color */
+.navbar-brand {
+  color: #7018aa !important; /* Purple color, using !important to override Bootstrap styles */
+  font-weight: bold; /* Make the text bold */
+}
+

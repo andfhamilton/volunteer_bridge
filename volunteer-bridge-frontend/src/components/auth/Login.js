@@ -22,7 +22,7 @@ const Login = () => {
     setLoading(true);
     
     try {
-      const data = await AuthService.login(credentials.username, credentials.password);
+      await AuthService.login(credentials.username, credentials.password);
       const userResponse = await AuthService.getCurrentUser();
       setCurrentUser(userResponse.data);
       navigate('/');
@@ -71,6 +71,7 @@ const Login = () => {
                 >
                   {loading ? 'Logging in...' : 'Log In'}
                 </Button>
+
               </Form>
               <div className="text-center mt-3">
                 <p>Don't have an account? <Link to="/register">Register here</Link></p>

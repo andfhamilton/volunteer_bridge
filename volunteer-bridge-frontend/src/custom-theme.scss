@@ -1,0 +1,20 @@
+// First, import Bootstrap functions and variables
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+
+// Then, override Bootstrap variables
+$primary: #ad42f4;    
+$secondary: #e0e37a;  
+$success: #0f9d58;   
+$info: #ad42f4;       
+$warning: #fbbc05;   
+$danger: #ea4335;     
+
+.custom-primary-btn {
+    background-color: #ad42f4 !important;
+    border-color: #ad42f4 !important;
+  }
+  
+
+// Finally, import the rest of Bootstrap
+@import "~bootstrap/scss/bootstrap";
