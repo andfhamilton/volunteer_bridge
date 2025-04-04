@@ -28,7 +28,7 @@ const Footer = () => {
         </Row>
         <Row>
           <Col className="text-center pt-3">
-            <p>&copy; {new Date().getFullYear()} Volunteer Bridge. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Volunteer Bridge (AFHinc.). All rights reserved.</p>
           </Col>
         </Row>
       </Container>

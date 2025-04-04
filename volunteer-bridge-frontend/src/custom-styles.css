@@ -43,7 +43,9 @@ a:active {
 .navbar, .footer {
   background-color: #e8f0ed; 
 }
-
+.footer {
+  padding-top: 15px; /* Add padding to the top of the footer */
+}
 /* Volunteer Bridge text color */
 .navbar-brand {
   color: #7018aa !important; /* Purple color, using !important to override Bootstrap styles */

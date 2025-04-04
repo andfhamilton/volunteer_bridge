@@ -20,7 +20,7 @@ const AppNavbar = () => {
         
         <Navbar.Brand as={Link} to="/">
           <img
-            src="https://img.icons8.com/?size=100&id=16161&format=png&color=000000"
+            src="/images/volunteer-icon.png"
             width="30"
             height="30"
             className="d-inline-block align-top me-2"
