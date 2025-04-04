@@ -1,11 +1,12 @@
-/* src/custom-styles.css */
+
 :root {
   --bs-primary: #8f33cd;
-  --bs-secondary: #e0e37a;
-  --bs-success: #0f9d58;
-  --bs-info: #ad42f4;
-  --bs-warning: #fbbc05;
-  --bs-danger: #ea4335;
+  --bs-secondary: #28a440;
+  --bs-success: #5bd7be;
+  --bs-info: #328fcd;
+  --bs-warning: #1e1e7b;
+  --bs-danger: #391452;
+  --navbar-footer-bg: #e6eaef;
 }
 
 .btn-primary {
@@ -41,7 +42,7 @@ a:active {
 }
 /* NavBar and Footer background color */
 .navbar, .footer {
-  background-color: #e8f0ed; 
+  background-color: var(--navbar-footer-bg);
 }
 .footer {
   padding-top: 15px; /* Add padding to the top of the footer */
@@ -50,5 +51,19 @@ a:active {
 .navbar-brand {
   color: #7018aa !important; /* Purple color, using !important to override Bootstrap styles */
   font-weight: bold; /* Make the text bold */
+}
+
+/* src/custom-styles.css */
+.home-banner {
+  margin-top: -1.5rem; /* To offset the container padding */
+  margin-bottom: 2rem;
+}
+
+.home-banner h1 {
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.home-banner p {
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 
