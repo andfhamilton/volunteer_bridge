@@ -13,7 +13,7 @@
     "react": "^19.1.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.4.1",
+    "react-router-dom": "^6.10.0",
     "react-scripts": "5.0.1",
     "sass": "^1.86.2",
     "web-vitals": "^2.1.4",
@@ -22,11 +22,11 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
     "eject": "react-scripts eject",
     "start-craco": "craco start",
     "build-craco": "craco build",
-    "test-craco": "craco test"
+    "test-craco": "craco test",
+    "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!axios)/\""
   },
   "eslintConfig": {
     "extends": [
@@ -52,6 +52,8 @@
     ]
   },
   "devDependencies": {
-    "@craco/craco": "^7.1.0"
+    "@babel/core": "^7.26.10",
+    "@babel/plugin-transform-modules-commonjs": "^7.26.3",
+    "babel-jest": "^29.7.0"
   }
 }
