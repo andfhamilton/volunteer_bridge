@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Button, Card, Alert, Container, Row, Col } from 'react-bootstrap';
+import { Form, Button, Card, Alert, Container, Row, Col, Badge } from 'react-bootstrap';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import AuthService from '../../services/auth.service';
 
@@ -17,7 +17,47 @@ const Register = () => {
     skills: [],
     interests: []
   });
+  const availableSkills = [
+    'Teaching', 'Mentoring', 'Administrative', 'Event Planning', 
+    'Marketing', 'Fundraising', 'Technical', 'Medical', 'Legal'
+  ];
   
+  const availableInterests = [
+    'Education', 'Environment', 'Health', 'Animals', 'Arts', 
+    'Community Development', 'Disaster Relief', 'Human Rights'
+  ];
+
+  const handleSkillToggle = (skill) => {
+    setFormData(prevData => {
+      if (prevData.skills.includes(skill)) {
+        return {
+          ...prevData,
+          skills: prevData.skills.filter(s => s !== skill)
+        };
+      } else {
+        return {
+          ...prevData,
+          skills: [...prevData.skills, skill]
+        };
+      }
+    });
+  };
+  const handleInterestToggle = (interest) => {
+    setFormData(prevData => {
+      if (prevData.interests.includes(interest)) {
+        return {
+          ...prevData,
+          interests: prevData.interests.filter(i => i !== interest)
+        };
+      } else {
+        return {
+          ...prevData,
+          interests: [...prevData.interests, interest]
+        };
+      }
+    });
+  };
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -129,26 +169,74 @@ const Register = () => {
                     </Form.Group>
                   </Col>
                 </Row>
-                
                 <Form.Group className="mb-3">
-                  <Form.Label>I am a: (select all that apply)</Form.Label>
+                  <Form.Label>I am a:</Form.Label>
                   <div>
                     <Form.Check
-                      type="checkbox"
+                      type="radio"
                       label="Volunteer"
-                      name="is_volunteer"
-                      checked={formData.is_volunteer}
-                      onChange={handleChange}
+                      name="userRole"
+                      id="volunteerRole"
+                      checked={formData.is_volunteer && !formData.is_organization}
+                      onChange={() => setFormData({
+                        ...formData,
+                        is_volunteer: true,
+                        is_organization: false
+                      })}
                     />
                     <Form.Check
-                      type="checkbox"
+                      type="radio"
                       label="Organization"
-                      name="is_organization"
-                      checked={formData.is_organization}
-                      onChange={handleChange}
+                      name="userRole"
+                      id="organizationRole"
+                      checked={!formData.is_volunteer && formData.is_organization}
+                      onChange={() => setFormData({
+                        ...formData,
+                        is_volunteer: false,
+                        is_organization: true
+                      })}
                     />
                   </div>
                 </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Skills (select all that apply)</Form.Label>
+                  <div className="d-flex flex-wrap gap-2 mb-3">
+                    {availableSkills.map(skill => (
+                      <Badge 
+                        key={skill}
+                        bg={formData.skills.includes(skill) ? "secondary" : "light"}
+                        text={formData.skills.includes(skill) ? "white" : "dark"}
+                        style={{ cursor: 'pointer'
+                         }}
+                        onClick={() => handleSkillToggle(skill)}
+                        className="p-2"
+                      >
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Interests (select all that apply)</Form.Label>
+                  <div className="d-flex flex-wrap gap-2 mb-3">
+                    {availableInterests.map(interest => (
+                      <Badge 
+                        key={interest}
+                        bg={formData.interests.includes(interest) ? "secondary" : "light"}
+                        text={formData.interests.includes(interest) ? "white" : "dark"}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => handleInterestToggle(interest)}
+                        className="p-2"
+                      >
+                        {interest}
+                      </Badge>
+                    ))}
+                  </div>
+                </Form.Group>
+
+
                 
                 <Button 
                   variant="primary" 

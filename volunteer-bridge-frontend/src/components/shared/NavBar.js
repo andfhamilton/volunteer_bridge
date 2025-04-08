@@ -39,6 +39,9 @@ const AppNavbar = () => {
           <Nav>
             {currentUser ? (
               <>
+              <Nav.Link as={Link} to="/profile">
+              My Profile
+              </Nav.Link>
                 <Nav.Link as={Link} to="/notifications">
                   Notifications
                 </Nav.Link>
@@ -54,6 +57,7 @@ const AppNavbar = () => {
                   <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
                 </NavDropdown>
               </>
+              
             ) : (
               <>
                 <Nav.Link as={Link} to="/login">Login</Nav.Link>

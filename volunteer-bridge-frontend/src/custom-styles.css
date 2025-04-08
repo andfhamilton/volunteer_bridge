@@ -30,6 +30,9 @@
   background-color: var(--bs-primary);
   color: #fff;
 }
+.badge.bg-secondary {
+  background-color: var(--bs-secondary) !important;
+}
 
 a {
   color: var(--bs-primary);

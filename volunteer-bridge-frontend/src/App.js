@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 // Shared components
 import AppNavbar from './components/shared/NavBar';
 import Footer from './components/shared/Footer';
+import Profile from './components/auth/Profile';
 
 // Import styles
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -25,7 +26,6 @@ import PrivateRoute from './components/routing/PrivateRoute';
 
 // Placeholder components (we'll create these next)
 const Events = () => <div>Events Page</div>;
-const Profile = () => <div>Profile Page</div>;
 const NotFound = () => <div>404 - Page Not Found</div>;
 
 function App() {
