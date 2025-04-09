@@ -1,5 +1,6 @@
 # Volunteer Bridge
 A Django-based volunteer management platform that streamlines connections between organizations and volunteers.
+![Homepage screenshot](volunteer-bridge-frontend/public/images/Homepage.png)
 ## 🌟 Core Features
 ### Account Management
 Custom user authentication and authorization\
