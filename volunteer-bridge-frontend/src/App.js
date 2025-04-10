@@ -7,6 +7,8 @@ import { AuthProvider } from './context/AuthContext';
 import AppNavbar from './components/shared/NavBar';
 import Footer from './components/shared/Footer';
 import Profile from './components/auth/Profile';
+import OpportunityForm from './components/opportunities/OpportunityForm';
+import ApplicationList from './components/opportunities/ApplicationList';
 
 // Import styles
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -43,6 +45,7 @@ function App() {
               <Route path="/opportunities/:id" element={<OpportunityDetail />} />
               <Route path="/events" element={<Events />} />
               
+              
               {/* Protected routes */}
               <Route 
                 path="/profile" 
@@ -52,8 +55,27 @@ function App() {
                   </PrivateRoute>
                 } 
               />
-              
+              <Route path="/opportunities/create" element={
+                  <PrivateRoute>
+                    <OpportunityForm />
+                  </PrivateRoute>
+                } 
+              />
+              <Route path="/opportunities/edit/:id" element={
+                  <PrivateRoute>
+                    <OpportunityForm />
+                  </PrivateRoute>
+                } 
+              />
               <Route path="*" element={<NotFound />} />
+              <Route 
+                path="/opportunities/:id/applications" 
+                element={
+                  <PrivateRoute>
+                    <ApplicationList />
+                  </PrivateRoute>
+                } 
+              />
             </Routes>
           </Container>
           <Footer />
