@@ -66,9 +66,21 @@ MIDDLEWARE = [
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = ["http://localhost:5173",
-                        "http://localhost:3000"]  # We add your frontend URL here.
+                        "http://localhost:3000",
+                        "http://192.168.12.117:3000"]  # We add your frontend URL here.
 CSRF_TRUSTED_ORIGINS = ['http://localhost:5173']  # We add your frontend URL here.
-
+# Allow all headers in requests
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
 ROOT_URLCONF = 'volunteer_bridge.urls'
 
@@ -131,7 +143,10 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
-    )
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
 }
 
 # Internationalization

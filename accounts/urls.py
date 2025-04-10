@@ -3,10 +3,10 @@ from django.urls import path, include
 from . import views
 from .views import MessageViewSet
 
+
+# Create a single router instance
 router = DefaultRouter()
 router.register(r'users', views.UserViewSet, basename='user')
-
-router = DefaultRouter()
 router.register(r'messages', MessageViewSet, basename='message')
 
 urlpatterns = [
