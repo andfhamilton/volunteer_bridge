@@ -32,7 +32,10 @@ const Login = () => {
     setLoading(true);
     
     try {
-      await AuthService.login(credentials.username, credentials.password);
+      const loginResponse = await AuthService.login(credentials.username, credentials.password);
+      console.log('Login response:', loginResponse); // Check what's returned
+      console.log('Token in localStorage:', localStorage.getItem('token')); // Verify token storage
+
       const userResponse = await AuthService.getCurrentUser();
       setCurrentUser(userResponse.data);
     // Redirect to intended page or home
@@ -45,6 +48,33 @@ const Login = () => {
     setLoading(false);
     }
     };
+
+const checkToken = () => {
+  const token = localStorage.getItem('token');
+  console.log('Current token:', token);
+  
+  if (token) {
+    // Check if token is properly formatted (should be a long string without extra quotes)
+    console.log('Token length:', token.length);
+    console.log('First 20 chars:', token.substring(0, 20));
+    
+    // Check if token is being sent in requests
+    fetch('http://127.0.0.1:8000/api/opportunities/recommended/', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(response => {
+      console.log('Test request status:', response.status);
+      return response.json();
+    })
+    .then(data => console.log('Test request data:', data))
+    .catch(err => console.error('Test request error:', err));
+  } else {
+    console.log('No token found in localStorage');
+  }
+};
+
 
   return (
     <Container>
@@ -85,6 +115,7 @@ const Login = () => {
               >
                 {loading ? 'Logging in...' : 'Log In'}
               </Button>
+              
             </Form>
             <div className="text-center mt-3">
               <p>Don't have an account? <Link to="/register">Register here</Link></p>

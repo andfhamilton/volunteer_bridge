@@ -1,7 +1,7 @@
+// src/services/api.js
 import axios from 'axios';
 
 const API_URL = 'http://127.0.0.1:8000/api/';
-
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -9,15 +9,17 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // Add withCredentials for CORS with credentials
-  withCredentials: true,
+  // Remove withCredentials - it's not needed for JWT auth
 });
 
-// Add request interceptor to attach auth token
+// Add request interceptor with debug logging
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
+    console.log('Using token for request:', token ? 'Yes (token exists)' : 'No (token missing)');
+    
     if (token) {
+      // Ensure correct format with Bearer prefix and space
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -26,3 +28,4 @@ apiClient.interceptors.request.use(
 );
 
 export default apiClient;
+// This file sets up an axios instance for API calls, including interceptors for authentication.

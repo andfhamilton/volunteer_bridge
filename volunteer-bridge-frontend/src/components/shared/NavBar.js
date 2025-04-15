@@ -47,15 +47,13 @@ const AppNavbar = () => {
                 </Nav.Link>
                 <NavDropdown title={currentUser.username} id="basic-nav-dropdown">
                   <NavDropdown.Item as={Link} to="/profile">Profile</NavDropdown.Item>
-                  {currentUser.is_volunteer && (
-                    <NavDropdown.Item as={Link} to="/volunteer-hours">My Hours</NavDropdown.Item>
-                  )}
-                  {currentUser.is_organization && (
-                    <NavDropdown.Item as={Link} to="/organization-dashboard">Dashboard</NavDropdown.Item>
-                  )}
+                  <NavDropdown.Item as={Link} to="/dashboard">Dashboard</NavDropdown.Item>
+                  
+                  {/* Other dropdown items */}
                   <NavDropdown.Divider />
                   <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
                 </NavDropdown>
+
               </>
               
             ) : (

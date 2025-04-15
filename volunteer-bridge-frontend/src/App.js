@@ -7,8 +7,11 @@ import { AuthProvider } from './context/AuthContext';
 import AppNavbar from './components/shared/NavBar';
 import Footer from './components/shared/Footer';
 import Profile from './components/auth/Profile';
+import EditProfile from './components/auth/EditProfile';
 import OpportunityForm from './components/opportunities/OpportunityForm';
 import ApplicationList from './components/opportunities/ApplicationList';
+import SimplifiedDashboard from './components/dashboard/SimplifiedDashboard';
+
 
 // Import styles
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -46,12 +49,12 @@ function App() {
               <Route path="/events" element={<Events />} />
               
               
-              {/* Protected routes */}
+              {/* Routes */}
               <Route 
-                path="/profile" 
+                path="/dashboard" 
                 element={
                   <PrivateRoute>
-                    <Profile />
+                    <SimplifiedDashboard />
                   </PrivateRoute>
                 } 
               />
@@ -67,7 +70,7 @@ function App() {
                   </PrivateRoute>
                 } 
               />
-              <Route path="*" element={<NotFound />} />
+                          
               <Route 
                 path="/opportunities/:id/applications" 
                 element={
@@ -76,6 +79,25 @@ function App() {
                   </PrivateRoute>
                 } 
               />
+
+               {/* Protected profile route */}
+              <Route 
+                path="/profile" 
+                element={
+                  <PrivateRoute>
+                    <Profile />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/profile/edit" 
+                element={
+                  <PrivateRoute>
+                    <EditProfile />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Container>
           <Footer />

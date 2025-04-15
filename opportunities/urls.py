@@ -8,4 +8,6 @@ router.register(r'events', views.EventViewSet, basename='event')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('opportunities/organization/', views.organization_opportunities, name='organization_opportunities'),
+    path('opportunities/recommended/', views.recommended_opportunities, name='recommended_opportunities'),
 ]

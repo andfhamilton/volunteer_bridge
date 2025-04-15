@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Alert } from 'react-bootstrap';
 import { AuthContext } from '../../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 const Profile = () => {
   const { currentUser } = useContext(AuthContext);
@@ -77,8 +78,7 @@ const Profile = () => {
                   </Row>
                 </>
               )}
-              
-              <Button variant="outline-primary">Edit Profile</Button>
+              <Button as={Link} to="/profile/edit" variant="outline-primary">Edit Profile</Button>
             </Card.Body>
           </Card>
         </Col>

@@ -140,7 +140,9 @@ const OpportunityDetail = () => {
               </div>
               
               <h5>Category</h5>
-              <Badge bg="info" className="mb-3">{opportunity.category || 'Uncategorized'}</Badge>
+              <Badge bg="info" className="mb-3">
+                {opportunity.category_display || 'Uncategorized'}
+              </Badge>
               
               <h5>Commitment</h5>
               <p>{opportunity.commitment_hours || 'Flexible'} hours per week</p>
@@ -180,16 +182,18 @@ const OpportunityDetail = () => {
               </Button>
             </div>
           )}
-          {currentUser && currentUser.is_organization && opportunity.organization_id === currentUser.id && (
-            <Button 
-              as={Link} 
-              to={`/opportunities/${opportunity.id}/applications`} 
-              variant="outline-primary"
-              className="mt-3"
-            >
-              View Applications
-            </Button>
-          )}
+          {currentUser && currentUser.is_organization && 
+              opportunity.organization === currentUser.id && (
+              <Button 
+                as={Link} 
+                to={`/opportunities/${opportunity.id}/applications`} 
+                variant="outline-primary"
+                className="mt-3"
+              >
+                View Applications
+              </Button>
+            )}
+
 
 
         </Col>

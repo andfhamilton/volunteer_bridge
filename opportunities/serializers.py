@@ -5,6 +5,8 @@ from django.utils import timezone
 from accounts.serializers import UserSerializer
 
 class OpportunitySerializer(serializers.ModelSerializer):
+    category_display = serializers.SerializerMethodField()
+    organization_name = serializers.SerializerMethodField()
     class Meta:
         model = Opportunity
         fields = '__all__'
@@ -19,6 +21,11 @@ class OpportunitySerializer(serializers.ModelSerializer):
         if data['start_date'] >= data['end_date']:
             raise serializers.ValidationError("End date must be after start date")
         return data
+    def get_category_display(self, obj):
+        return obj.get_category_display()
+        
+    def get_organization_name(self, obj):
+        return obj.organization.username if obj.organization else None
 
 class MatchResultSerializer(serializers.Serializer):
     volunteer = UserSerializer()

@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import User
+from django.conf import settings
 
 class Opportunity(models.Model):
     STATUS_CHOICES = [
@@ -8,6 +8,15 @@ class Opportunity(models.Model):
         ('COMPLETED', 'Completed'),
         ('CANCELLED', 'Cancelled')
     ]
+    CATEGORY_CHOICES = [
+        ('EDU', 'Education'),
+        ('ENV', 'Environment'),
+        ('HEA', 'Health'),
+        ('ANI', 'Animals'),
+        ('ART', 'Arts'),
+        ('COM', 'Community Development'),
+    ]
+    category = models.CharField(max_length=3, choices=CATEGORY_CHOICES, default='COM')
     
     title = models.CharField(max_length=200)
     description = models.TextField()
@@ -27,7 +36,7 @@ class Event(models.Model):
     end_time = models.DateTimeField()
     location = models.CharField(max_length=200)
     opportunity = models.ForeignKey('Opportunity', on_delete=models.CASCADE, null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     max_attendees = models.PositiveIntegerField(default=50)
     waitlist_enabled = models.BooleanField(default=True)
@@ -46,7 +55,7 @@ class RSVP(models.Model):
         ('CANCELLED', 'Cancelled')
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='rsvps')
     status = models.CharField(max_length=10, choices=RSVP_STATUS, default='REGISTERED')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -54,4 +63,3 @@ class RSVP(models.Model):
 
     class Meta:
         unique_together = ('user', 'event')
-

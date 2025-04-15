@@ -2,10 +2,11 @@ from rest_framework import viewsets, permissions, status
 from django.db.models import Q
 from rest_framework.response import Response
 from .models import Opportunity, Event, RSVP
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from .serializers import OpportunitySerializer, EventSerializer, RSVPSerializer
 from rest_framework.exceptions import ValidationError
 from accounts.permissions import IsOrganization
+from rest_framework.permissions import IsAuthenticated
 from .matching import match_volunteers_to_opportunities
 from notifications.utils import create_notification
 from django.contrib.auth import get_user_model
@@ -154,3 +155,39 @@ class RSVPViewSet(viewsets.ModelViewSet):
                 raise ValidationError("Event is full")
         else:
             serializer.save(user=self.request.user)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def organization_opportunities(request):
+    """List opportunities created by the current organization"""
+    if not request.user.is_organization:
+        return Response({"detail": "Only organizations can access this endpoint"}, status=403)
+    
+    opportunities = Opportunity.objects.filter(organization=request.user)
+    serializer = OpportunitySerializer(opportunities, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def recommended_opportunities(request):
+    """List opportunities recommended for the current volunteer"""
+    if not request.user.is_volunteer:
+        return Response({"detail": "Only volunteers can access this endpoint"}, status=403)
+    
+    # Get user's skills and interests
+    user_skills = request.user.skills
+    user_interests = request.user.interests
+    
+    # Find opportunities matching skills and interests
+    # This is a simple implementation - you can make it more sophisticated
+    if user_skills or user_interests:
+        opportunities = Opportunity.objects.filter(
+            Q(required_skills__overlap=user_skills) | 
+            Q(category__in=user_interests)
+        ).distinct()[:6]  # Limit to 6 recommendations
+    else:
+        # If no skills/interests, return recent opportunities
+        opportunities = Opportunity.objects.filter(status='OPEN').order_by('-created_at')[:6]
+    
+    serializer = OpportunitySerializer(opportunities, many=True)
+    return Response(serializer.data)
