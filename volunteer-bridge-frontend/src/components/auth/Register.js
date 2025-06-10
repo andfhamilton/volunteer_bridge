@@ -83,7 +83,10 @@ const Register = () => {
     if (!formData.is_volunteer && !formData.is_organization) {
       return setError('Please select at least one role');
     }
-    
+    // Validate skills and interests for volunteers
+  if (formData.is_volunteer && (!formData.skills.length || !formData.interests.length)) {
+    return setError('Please select at least one skill and one interest');
+  }
     setLoading(true);
     
     try {
@@ -93,8 +96,8 @@ const Register = () => {
         password: formData.password,
         is_volunteer: formData.is_volunteer,
         is_organization: formData.is_organization,
-        skills: [],
-        interests: []
+        skills: formData.skills,
+        interests: formData.interests
       });
       
       navigate('/login', { state: { message: 'Registration successful! Please log in.' } });

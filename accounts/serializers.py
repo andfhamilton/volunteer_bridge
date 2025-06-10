@@ -3,6 +3,8 @@ from .models import User, Message, Application
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    skills = serializers.JSONField(required=False, allow_null=True)
+    interests = serializers.JSONField(required=False, allow_null=True)
     
     class Meta:
         model = User

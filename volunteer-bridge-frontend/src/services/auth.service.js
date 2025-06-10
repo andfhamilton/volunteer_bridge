@@ -22,6 +22,8 @@ login: async (username, password) => {
 },
   
   register: async (userData) => {
+    console.log('Registering user with data:', userData);
+    
     try {
       return await apiClient.post('register/', userData);
     } catch (error) {
@@ -31,6 +33,7 @@ login: async (username, password) => {
   },
   
   getCurrentUser: async () => {
+    
     try {
       // Try the new profile endpoint
       return await apiClient.get('profile/');
