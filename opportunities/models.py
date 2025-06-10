@@ -15,6 +15,9 @@ class Opportunity(models.Model):
         ('ANI', 'Animals'),
         ('ART', 'Arts'),
         ('COM', 'Community Development'),
+        ('DRE', 'Disaster Relief'),
+        ('HUM', 'Human Rights'),
+        ('OTH', 'Other')
     ]
     category = models.CharField(max_length=3, choices=CATEGORY_CHOICES, default='COM')
     
@@ -28,6 +31,8 @@ class Opportunity(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='OPEN')
     created_at = models.DateTimeField(auto_now_add=True)
     max_volunteers = models.IntegerField(default=1)
+    commitment_hours = models.IntegerField(null=True, blank=True, help_text="Hours per week")
+    virtual = models.BooleanField(default=False)
 
 class Event(models.Model):
     title = models.CharField(max_length=200)

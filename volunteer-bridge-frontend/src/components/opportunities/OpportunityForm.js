@@ -30,8 +30,18 @@ const OpportunityForm = () => {
   const [skillInput, setSkillInput] = useState('');
   
   // Categories for dropdown
-  const categories = ['Education', 'Environment', 'Health', 'Animals', 'Arts', 
-                     'Community Development', 'Disaster Relief', 'Human Rights'];
+  const categories = [
+    { value: 'EDU', label: 'Education' },
+    { value: 'ENV', label: 'Environment' },
+    { value: 'HEA', label: 'Health' },
+    { value: 'ANI', label: 'Animals' },
+    { value: 'ART', label: 'Arts' },
+    { value: 'COM', label: 'Community Development' },
+    { value: 'DRE', label: 'Disaster Relief' },
+    { value: 'HUM', label: 'Human Rights' },
+    { value: 'OTH', label: 'Other' }
+
+];
   
   useEffect(() => {
     // If editing, fetch the opportunity data
@@ -87,11 +97,18 @@ const OpportunityForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+     // Format dates for Django
+    const submitData = {
+      ...formData,
+      start_date: formData.start_date ? new Date(formData.start_date).toISOString() : null,
+      end_date: formData.end_date ? new Date(formData.end_date).toISOString() : null,
+    };
+    
     try {
       if (isEditing) {
-        await apiClient.put(`opportunities/${id}/`, formData);
+        await apiClient.put(`opportunities/${id}/`, submitData);
       } else {
-        await apiClient.post('opportunities/', formData);
+        await apiClient.post('opportunities/', submitData);
       }
       
       setSuccess(true);
@@ -158,7 +175,7 @@ const OpportunityForm = () => {
                   >
                     <option value="">Select a category</option>
                     {categories.map(category => (
-                      <option key={category} value={category}>{category}</option>
+                      <option key={category.value} value={category.value}>{category.label}</option>
                     ))}
                   </Form.Select>
                 </Form.Group>
