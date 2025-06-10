@@ -11,6 +11,7 @@ router.register(r'messages', MessageViewSet, basename='message')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('profile/', views.profile_view, name='profile'),
     path('applications/volunteer/', views.volunteer_applications, name='volunteer_applications'),
     path('applications/organization/', views.organization_applications, name='organization_applications'),
     path('opportunities/<int:opportunity_id>/apply/', views.apply_to_opportunity, name='apply_to_opportunity'),

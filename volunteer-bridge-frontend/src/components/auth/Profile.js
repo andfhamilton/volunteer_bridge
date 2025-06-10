@@ -1,14 +1,39 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Alert } from 'react-bootstrap';
 import { AuthContext } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import apiClient from '../../services/api';
 
 const Profile = () => {
-  const { currentUser } = useContext(AuthContext);
+  const location = useLocation();
+  const { currentUser: contextUser } = useContext(AuthContext);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [message] = useState('');
 
+  useEffect(() => {
+    fetchCurrentProfile();
+  }, [location.state?.refreshProfile]);
+
+  const fetchCurrentProfile = async () => {
+    try {
+      const response = await apiClient.get('profile/');
+      setCurrentUser(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      // Fallback to context user if API fails
+      setCurrentUser(contextUser);
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <Container><div>Loading profile...</div></Container>;
+  }
+
   if (!currentUser) {
-    return <div>Loading profile...</div>;
+    return <Container><div>Unable to load profile...</div></Container>;
   }
 
   return (
@@ -44,6 +69,27 @@ const Profile = () => {
                   </div>
                 </Col>
               </Row>
+              {/* ✅ ADD: Phone and Address Section */}
+              <Row className="mb-3">
+                <Col md={6}>
+                  <h5>Phone</h5>
+                  <p>{currentUser.phone || <span className="text-muted">Not provided</span>}</p>
+                </Col>
+                <Col md={6}>
+                  <h5>Address</h5>
+                  <p>{currentUser.address || <span className="text-muted">Not provided</span>}</p>
+                </Col>
+              </Row>
+
+              {/* ✅ ADD: Bio Section */}
+              {(currentUser.bio && currentUser.bio.trim()) && (
+                <Row className="mb-4">
+                  <Col>
+                    <h5>Bio</h5>
+                    <p>{currentUser.bio}</p>
+                  </Col>
+                </Row>
+              )}
               
               {currentUser.is_volunteer && (
                 <>
@@ -77,7 +123,8 @@ const Profile = () => {
                     </Col>
                   </Row>
                 </>
-              )}
+              )}         
+                            
               <Button as={Link} to="/profile/edit" variant="outline-primary">Edit Profile</Button>
             </Card.Body>
           </Card>

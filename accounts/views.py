@@ -51,6 +51,32 @@ def get_user_profile(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def profile_view(request):
+    """Get or update user profile"""
+    if request.method == 'GET':
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+    
+    elif request.method == 'PUT':
+        # Create a serializer for profile updates (exclude sensitive fields)
+        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            # Don't allow password changes through this endpoint
+            validated_data = serializer.validated_data
+            validated_data.pop('password', None)  # Remove password if present
+            
+            # Update user fields
+            for field, value in validated_data.items():
+                setattr(request.user, field, value)
+            request.user.save()
+            
+            # Return updated user data
+            updated_serializer = UserSerializer(request.user)
+            return Response(updated_serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]

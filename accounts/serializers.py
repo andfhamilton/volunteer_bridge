@@ -20,6 +20,13 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+class ProfileSerializer(serializers.ModelSerializer):
+    """Serializer for profile updates - excludes sensitive fields"""
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'phone', 'address', 'bio', 'skills', 'interests')
+        read_only_fields = ('id',)
+
     
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
